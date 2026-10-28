@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Generatore Casuale</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>🎲 Generatore Casuale</h1>
+    <p class="sub">Numeri, sequenze, liste, monete, dadi e password — generati con <code>crypto.getRandomValues</code> del browser.</p>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="interi">Numeri interi</button>
+    <button class="tab" data-tab="sequenza">Sequenza</button>
+    <button class="tab" data-tab="lista">Mescola lista</button>
+    <button class="tab" data-tab="moneta">Moneta</button>
+    <button class="tab" data-tab="dadi">Dadi</button>
+    <button class="tab" data-tab="password">Password</button>
+  </nav>
+
+  <main>
+    <!-- Numeri interi -->
+    <section class="panel active" id="interi">
+      <h2>Generatore di numeri interi</h2>
+      <form id="form-interi">
+        <div class="row">
+          <label>Quanti numeri <input type="number" name="n" value="10" min="1" max="10000" required></label>
+          <label>Minimo <input type="number" name="min" value="1" required></label>
+          <label>Massimo <input type="number" name="max" value="100" required></label>
+        </div>
+        <label class="full">Numeri da escludere
+          <input type="text" name="escludi" placeholder="es. 7, 13, 20-30">
+          <small>Separati da virgola o spazio. Puoi indicare intervalli come <code>20-30</code>.</small>
+        </label>
+        <div class="row">
+          <label class="check"><input type="checkbox" name="unici"> Senza ripetizioni</label>
+          <label class="check"><input type="checkbox" name="ordina"> Ordina i risultati</label>
+        </div>
+        <button type="submit">Genera</button>
+      </form>
+      <div class="result" id="res-interi"></div>
+    </section>
+
+    <!-- Sequenza -->
+    <section class="panel" id="sequenza">
+      <h2>Generatore di sequenze</h2>
+      <p>Tutti i numeri dell'intervallo, ciascuno una volta, in ordine casuale.</p>
+      <form id="form-sequenza">
+        <div class="row">
+          <label>Minimo <input type="number" name="min" value="1" required></label>
+          <label>Massimo <input type="number" name="max" value="20" required></label>
+        </div>
+        <label class="full">Numeri da escludere
+          <input type="text" name="escludi" placeholder="es. 7, 13, 20-30">
+        </label>
+        <button type="submit">Genera</button>
+      </form>
+      <div class="result" id="res-sequenza"></div>
+    </section>
+
+    <!-- Lista -->
+    <section class="panel" id="lista">
+      <h2>Mescola una lista</h2>
+      <form id="form-lista">
+        <label class="full">Un elemento per riga
+          <textarea name="items" rows="8" placeholder="Mario&#10;Giulia&#10;Luca&#10;Sara"></textarea>
+        </label>
+        <label>Estrai solo <input type="number" name="k" min="1" placeholder="tutti"></label>
+        <button type="submit">Mescola</button>
+      </form>
+      <div class="result" id="res-lista"></div>
+    </section>
+
+    <!-- Moneta -->
+    <section class="panel" id="moneta">
+      <h2>Lancio della moneta</h2>
+      <form id="form-moneta">
+        <label>Quante monete <input type="number" name="n" value="1" min="1" max="100" required></label>
+        <button type="submit">Lancia</button>
+      </form>
+      <div class="result" id="res-moneta"></div>
+    </section>
+
+    <!-- Dadi -->
+    <section class="panel" id="dadi">
+      <h2>Lancio dei dadi</h2>
+      <form id="form-dadi">
+        <div class="row">
+          <label>Quanti dadi <input type="number" name="n" value="2" min="1" max="100" required></label>
+          <label>Facce <input type="number" name="facce" value="6" min="2" max="1000" required></label>
+        </div>
+        <button type="submit">Lancia</button>
+      </form>
+      <div class="result" id="res-dadi"></div>
+    </section>
+
+    <!-- Password -->
+    <section class="panel" id="password">
+      <h2>Generatore di password</h2>
+      <form id="form-password">
+        <div class="row">
+          <label>Quante <input type="number" name="n" value="5" min="1" max="100" required></label>
+          <label>Lunghezza <input type="number" name="len" value="16" min="4" max="128" required></label>
+        </div>
+        <div class="row">
+          <label class="check"><input type="checkbox" name="lower" checked> a-z</label>
+          <label class="check"><input type="checkbox" name="upper" checked> A-Z</label>
+          <label class="check"><input type="checkbox" name="digits" checked> 0-9</label>
+          <label class="check"><input type="checkbox" name="symbols"> Simboli</label>
+        </div>
+        <button type="submit">Genera</button>
+      </form>
+      <div class="result" id="res-password"></div>
+    </section>
+  </main>
+
+  <footer>Generato il <span id="ts"></span> · La casualità proviene dal generatore crittografico del tuo browser.</footer>
+  <script src="app.js"></script>
+</body>
+</html>
