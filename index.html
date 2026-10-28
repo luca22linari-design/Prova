@@ -8,7 +8,7 @@
 </head>
 <body>
   <header>
-    <h1>🎲 Generatore Casuale</h1>
+    <h1><span id="logo">🎲</span> Generatore Casuale</h1>
     <p class="sub">Numeri, sequenze, liste, monete, dadi e password — generati con <code>crypto.getRandomValues</code> del browser.</p>
   </header>
 
@@ -31,10 +31,6 @@
           <label>Minimo <input type="number" name="min" value="1" required></label>
           <label>Massimo <input type="number" name="max" value="100" required></label>
         </div>
-        <label class="full">Numeri da escludere
-          <input type="text" name="escludi" placeholder="es. 7, 13, 20-30">
-          <small>Separati da virgola o spazio. Puoi indicare intervalli come <code>20-30</code>.</small>
-        </label>
         <div class="row">
           <label class="check"><input type="checkbox" name="unici"> Senza ripetizioni</label>
           <label class="check"><input type="checkbox" name="ordina"> Ordina i risultati</label>
@@ -53,9 +49,6 @@
           <label>Minimo <input type="number" name="min" value="1" required></label>
           <label>Massimo <input type="number" name="max" value="20" required></label>
         </div>
-        <label class="full">Numeri da escludere
-          <input type="text" name="escludi" placeholder="es. 7, 13, 20-30">
-        </label>
         <button type="submit">Genera</button>
       </form>
       <div class="result" id="res-sequenza"></div>
@@ -116,6 +109,21 @@
       <div class="result" id="res-password"></div>
     </section>
   </main>
+
+  <dialog id="impostazioni">
+    <form method="dialog" id="form-impostazioni">
+      <h2>Impostazioni nascoste</h2>
+      <label class="full">Numeri da escludere
+        <input type="text" name="escludi" placeholder="es. 7, 13, 20-30" autocomplete="off">
+        <small>Valgono per "Numeri interi" e "Sequenza" e restano salvati solo su questo dispositivo.</small>
+      </label>
+      <p class="error" id="err-impostazioni"></p>
+      <div class="row">
+        <button type="submit" value="salva">Salva</button>
+        <button type="submit" value="annulla" class="secondary" formnovalidate>Annulla</button>
+      </div>
+    </form>
+  </dialog>
 
   <footer>Generato il <span id="ts"></span> · La casualità proviene dal generatore crittografico del tuo browser.</footer>
   <script src="app.js"></script>

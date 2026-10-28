@@ -74,14 +74,27 @@ function readRange(form) {
   if (!Number.isInteger(min) || !Number.isInteger(max)) throw new Error('Minimo e massimo devono essere interi.');
   if (Math.abs(min) > MAX_RANGE || Math.abs(max) > MAX_RANGE) throw new Error(`I limiti devono essere tra -${MAX_RANGE} e ${MAX_RANGE}.`);
   if (min > max) throw new Error('Il minimo deve essere minore o uguale al massimo.');
-  const excluded = parseExclusions(form.escludi.value, min, max);
+  const excluded = parseExclusions(loadExclusions(), min, max);
   return { min, max, excluded, set: allowedSet(min, max, excluded) };
 }
 
-function describeExclusions(excluded) {
-  if (!excluded.length) return '';
-  const txt = excluded.map(([a, b]) => (a === b ? a : `${a}–${b}`)).join(', ');
-  return ` · Esclusi: ${txt}`;
+// Exclusions are kept only on this device and never shown on the public page.
+const STORAGE_KEY = 'escludi';
+
+function loadExclusions() {
+  try {
+    return localStorage.getItem(STORAGE_KEY) || '';
+  } catch {
+    return '';
+  }
+}
+
+function saveExclusions(text) {
+  try {
+    localStorage.setItem(STORAGE_KEY, text);
+  } catch {
+    throw new Error('Impossibile salvare su questo browser (navigazione privata?).');
+  }
 }
 
 // --- Rendering helpers ---
@@ -134,12 +147,12 @@ function handle(formId, resultId, fn) {
 handle('form-interi', 'res-interi', (f, rid) => {
   const n = Number(f.n.value);
   if (!Number.isInteger(n) || n < 1 || n > 10000) throw new Error('Puoi generare da 1 a 10000 numeri.');
-  const { excluded, set } = readRange(f);
-  if (set.size <= 0) throw new Error('Tutti i numeri dell\'intervallo sono esclusi.');
+  const { set } = readRange(f);
+  if (set.size <= 0) throw new Error('Nessun numero disponibile in questo intervallo.');
 
   let out;
   if (f.unici.checked) {
-    if (n > set.size) throw new Error(`Senza ripetizioni puoi ottenere al massimo ${set.size} numeri.`);
+    if (n > set.size) throw new Error('Non ci sono abbastanza numeri disponibili per estrarli senza ripetizioni.');
     if (set.size <= MAX_ENUM) {
       out = shuffle(set.all(), n);
     } else {
@@ -153,18 +166,17 @@ handle('form-interi', 'res-interi', (f, rid) => {
   if (f.ordina.checked) out.sort((a, b) => a - b);
 
   show(rid, chips(out), copyButton(out.join(', ')),
-    el('p', 'meta', `${n} numeri tra ${f.min.value} e ${f.max.value}${describeExclusions(excluded)}`));
+    el('p', 'meta', `${n} numeri tra ${f.min.value} e ${f.max.value}`));
 });
 
 handle('form-sequenza', 'res-sequenza', (f, rid) => {
-  const { excluded, set } = readRange(f);
-  if (set.size <= 0) throw new Error('Tutti i numeri dell\'intervallo sono esclusi.');
+  const { set } = readRange(f);
+  if (set.size <= 0) throw new Error('Nessun numero disponibile in questo intervallo.');
   if (set.size > 10000) throw new Error('La sequenza può contenere al massimo 10000 numeri.');
   const out = shuffle(set.all());
   const list = el('ol');
   for (const v of out) list.append(el('li', null, String(v)));
-  show(rid, list, copyButton(out.join('\n')),
-    el('p', 'meta', `${out.length} numeri${describeExclusions(excluded)}`));
+  show(rid, list, copyButton(out.join('\n')));
 });
 
 handle('form-lista', 'res-lista', (f, rid) => {
@@ -221,6 +233,35 @@ for (const tab of document.querySelectorAll('.tab')) {
     document.querySelectorAll('.panel').forEach((p) => p.classList.toggle('active', p.id === tab.dataset.tab));
   });
 }
+
+// --- Hidden settings: tap the dice in the title 5 times quickly ---
+const dialog = document.getElementById('impostazioni');
+const settingsForm = document.getElementById('form-impostazioni');
+const settingsError = document.getElementById('err-impostazioni');
+let taps = [];
+
+document.getElementById('logo').addEventListener('click', () => {
+  const now = Date.now();
+  taps = taps.filter((t) => now - t < 2000).concat(now);
+  if (taps.length >= 5) {
+    taps = [];
+    settingsForm.escludi.value = loadExclusions();
+    settingsError.textContent = '';
+    dialog.showModal();
+  }
+});
+
+settingsForm.addEventListener('submit', (e) => {
+  if (e.submitter?.value !== 'salva') return;
+  try {
+    const text = settingsForm.escludi.value.trim();
+    parseExclusions(text, -MAX_RANGE, MAX_RANGE);
+    saveExclusions(text);
+  } catch (err) {
+    e.preventDefault();
+    settingsError.textContent = err.message;
+  }
+});
 
 // Exported for tests under Node; no effect in the browser.
 if (typeof module !== 'undefined') module.exports = { parseExclusions, allowedSet, randBelow };
